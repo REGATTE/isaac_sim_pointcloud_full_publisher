@@ -44,7 +44,7 @@ roslaunch isaac_sim_pointcloud_full_publisher full_pcd_pub.launch robot_namespac
 ## Topics
 | Topic Name                                      | Type                                         | Role       |
 |-------------------------------------------------|---------------------------------------------|------------|
-| `/robot_namespace/scan3D`                       | `sensor_msgs/msg/PointCloud2`               | Subscriber |
+| `/robot_namespace/PointCloud2`                  | `sensor_msgs/msg/PointCloud2`               | Subscriber |
 | `/robot_namespace/scan3D_with_rings`            | `sensor_msgs/msg/PointCloud2`               | Publisher  |
 
 Note: Replace `robot_namespace` with the desired namespace using the launch file argument.

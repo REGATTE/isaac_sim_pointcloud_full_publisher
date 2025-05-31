@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
     <!-- Launch arguments -->
-    <arg name="robot_namespace" default="robot_x" doc="Namespace of the robot"/>
+    <arg name="robot_namespace" default="" doc="Namespace of the robot"/>
     <arg name="config_file" default="helios_16p.yaml" doc="Name of the config file to be used (located in the Params folder)"/>
 
     <!-- Load parameters from YAML file -->

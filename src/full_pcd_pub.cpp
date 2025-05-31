@@ -47,7 +47,7 @@ public:
     {
         // Get parameters
         std::string robot_namespace;
-        nh_.param<std::string>("robot_namespace", robot_namespace, "scout_1_1");
+        nh_.param<std::string>("robot_namespace", robot_namespace, "");
         nh_.param<int>("N_SCAN", N_SCAN, 16);
         nh_.param<int>("Horizon_SCAN", Horizon_SCAN, 1800);
         nh_.param<float>("fov_bottom", fov_bottom, -16.87);
@@ -56,8 +56,13 @@ public:
         nh_.param<float>("max_dist", max_dist, 120.0);
 
         // Define topic names based on namespace
-        lidar_topic = "/" + robot_namespace + "/PointCloud2";
-        output_topic = "/" + robot_namespace + "/scan3D_with_rings";
+        if (robot_namespace.empty()) {
+            lidar_topic = "/PointCloud2";
+            output_topic = "/scan3D_with_rings";
+        } else {
+            lidar_topic = "/" + robot_namespace + "/PointCloud2";
+            output_topic = "/" + robot_namespace + "/scan3D_with_rings";
+        }
 
         // Create subscriber and publisher
         subPC_ = nh_.subscribe(lidar_topic, 10, &LidarRingConverter::lidarHandle, this);
@@ -88,7 +93,7 @@ private:
         sensor_msgs::PointCloud2 pc_new_msg;
         pcl::toROSMsg(*new_pc, pc_new_msg);
         pc_new_msg.header = old_msg.header;
-        pc_new_msg.header.frame_id = "LiDAR"; // Set frame ID
+        pc_new_msg.header.frame_id = old_msg.header.frame_id;
         pubPC_.publish(pc_new_msg);
     }
 
@@ -100,6 +105,13 @@ private:
         // Convert incoming data
         pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>());
         pcl::PointCloud<PointXYZIRT>::Ptr pc_new(new pcl::PointCloud<PointXYZIRT>());
+        
+        // Add validation for point cloud structure
+        if (pc_msg->fields.size() < 3) {
+            ROS_ERROR("Input point cloud does not have enough fields!");
+            return;
+        }
+        
         pcl::fromROSMsg(*pc_msg, *pc);
 
         if (pc->points.empty()) {
