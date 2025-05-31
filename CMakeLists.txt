@@ -1,55 +1,44 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.0.2)
 project(isaac_sim_pointcloud_full_publisher)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
-
-# find dependencies
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(PCL REQUIRED)
-find_package(pcl_conversions REQUIRED)
-
-add_executable(full_pcd_pub src/full_pcd_pub.cpp)
-target_include_directories(full_pcd_pub PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_features(full_pcd_pub PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-ament_target_dependencies(
-  full_pcd_pub
-  "rclcpp"
-  "sensor_msgs"
-  "std_msgs"
-  "PCL"
-  "pcl_conversions"
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  sensor_msgs
+  std_msgs
+  pcl_ros
+  pcl_conversions
 )
 
-install(TARGETS full_pcd_pub
-  DESTINATION lib/${PROJECT_NAME})
+find_package(PCL REQUIRED)
 
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+)
+
+# Add the executable
+add_executable(full_pcd_pub src/full_pcd_pub.cpp)
+target_link_libraries(full_pcd_pub
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
+
+# Install the executable - make sure this is before catkin_package
+install(TARGETS full_pcd_pub
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+# Install parameter files
 install(
   DIRECTORY Params
-  DESTINATION share/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/Params
 )
 
-# Launch files
+# Install launch files
 install(DIRECTORY launch
-DESTINATION share/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
-
-ament_package()
+catkin_package(
+  CATKIN_DEPENDS roscpp sensor_msgs std_msgs pcl_ros pcl_conversions
+)

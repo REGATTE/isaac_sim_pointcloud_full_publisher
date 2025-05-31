@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Launch arguments -->
+    <arg name="robot_namespace" default="robot_x" doc="Namespace of the robot"/>
+    <arg name="config_file" default="helios_16p.yaml" doc="Name of the config file to be used (located in the Params folder)"/>
+
+    <!-- Load parameters from YAML file -->
+    <rosparam command="load" file="$(find isaac_sim_pointcloud_full_publisher)/Params/$(arg config_file)"/>
+
+    <!-- Override robot namespace parameter -->
+    <param name="robot_namespace" value="$(arg robot_namespace)"/>
+
+    <!-- Launch the node -->
+    <node pkg="isaac_sim_pointcloud_full_publisher" type="full_pcd_pub" name="lidar_ring_converter" output="screen">
+        <!-- Parameters will be loaded from the YAML file -->
+    </node>
+</launch>

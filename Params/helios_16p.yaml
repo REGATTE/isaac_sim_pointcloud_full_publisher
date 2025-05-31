@@ -1,0 +1,9 @@
+helios_16p:
+  ros__parameters:
+    lidar_name: "Helios 16P"
+    vertical_channels: 16
+    horizontal_resolution: 1800
+    fov_bottom: -15.0
+    fov_top: 15.0
+    min_dist: 0.1
+    max_dist: 100.0
