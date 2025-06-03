@@ -9,7 +9,7 @@ def generate_launch_description():
     # Declare launch arguments
     robot_namespace_arg = DeclareLaunchArgument(
         'robot_namespace',
-        default_value='robot_x',
+        default_value='',
         description='Namespace of the robot'
     )
 

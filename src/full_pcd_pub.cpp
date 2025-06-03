@@ -46,7 +46,8 @@ public:
     LidarRingConverter() : Node("lidar_ring_converter")
     {
         // Declare Launch Parameters
-        this->declare_parameter<std::string>("robot_namespace", "scout_1_1");
+        this->declare_parameter<std::string>("robot_namespace", "");
+        this->declare_parameter<std::string>("frame_id", "XT_16_10hz");  // Add frame_id parameter
 
         // Decalare Configurable Parameters
         this->declare_parameter<int>("N_SCAN", 128);
@@ -58,6 +59,7 @@ public:
 
         // Get parameters
         std::string robot_namespace = this->get_parameter("robot_namespace").as_string();
+        frame_id_ = this->get_parameter("frame_id").as_string();  // Get frame_id parameter
         N_SCAN = this->get_parameter("N_SCAN").as_int();
         Horizon_SCAN = this->get_parameter("Horizon_SCAN").as_int();
         fov_bottom = this->get_parameter("fov_bottom").as_double();
@@ -66,8 +68,8 @@ public:
         max_dist = this->get_parameter("max_dist").as_double();
 
         // Define topic names based on namespace
-        lidar_topic = "/" + robot_namespace + "/scan3D";
-        output_topic = "/" + robot_namespace + "/scan3D_with_rings";
+        lidar_topic = robot_namespace.empty() ? "/scan_3d" : "/" + robot_namespace + "/scan_3d";
+        output_topic = robot_namespace.empty() ? "/scan3D_with_rings" : "/" + robot_namespace + "/scan3D_with_rings";
 
         // Create subscriber and publisher
         subPC_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
@@ -77,6 +79,7 @@ public:
     }
 
 private:
+    std::string frame_id_;  // Add frame_id member variable
     int N_SCAN;                      ///< Number of vertical beams
     int Horizon_SCAN;                ///< Horizontal resolution
     float fov_bottom;                ///< Bottom of vertical FoV
@@ -99,7 +102,7 @@ private:
         sensor_msgs::msg::PointCloud2 pc_new_msg;
         pcl::toROSMsg(*new_pc, pc_new_msg);
         pc_new_msg.header = old_msg.header;
-        pc_new_msg.header.frame_id = "LiDAR"; // Set frame ID
+        pc_new_msg.header.frame_id = frame_id_;  // Use dynamic frame_id
         pubPC_->publish(pc_new_msg);
     }
 
